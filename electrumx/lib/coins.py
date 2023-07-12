@@ -4217,3 +4217,70 @@ class FerriteTestnet(Ferrite):
         'enode2.ferritecoin.org s t',
         'enode3.ferritecoin.org s t',
     ]
+
+
+class BlocknetMixin(object):
+    NET = "mainnet"
+    DAEMON = daemon.LegacyRPCDaemon
+    DESERIALIZER = lib_tx.DeserializerSegWit
+    XPUB_VERBYTES = bytes.fromhex("0488B21E")
+    XPRV_VERBYTES = bytes.fromhex("0488ADE4")
+    P2PKH_VERBYTE = bytes.fromhex("1A")
+    P2SH_VERBYTES = [bytes.fromhex("1C")]
+    WIF_BYTE = bytes.fromhex("9A")
+    GENESIS_HASH = ('00000eb7919102da5a07dc90905651664e6ebf0811c28f06573b9a0fd84ab7b8')
+    RPC_PORT = 41414
+    #  HDR_V4_HEIGHT = 1
+    #  HDR_V4_SIZE = 112
+    BASIC_HEADER_SIZE = 80
+    TX_COUNT = 204387
+    TX_COUNT_HEIGHT = 101910
+    TX_PER_BLOCK = 2
+    #  HDR_V4_START_OFFSET = HDR_V4_HEIGHT * BASIC_HEADER_SIZE
+
+
+class Blocknet(BlocknetMixin, Coin):
+    NAME = "Blocknet"
+    SHORTNAME = "BLOCK"
+
+    @classmethod
+    def header_hash(cls, header):
+        version, = util.unpack_le_uint32_from(header)
+
+        if len(header) != 80 and version >= 3:
+            return super().header_hash(header[:cls.BASIC_HEADER_SIZE])
+        else:
+            import quark_hash
+            return quark_hash.getPoWHash(header[:cls.BASIC_HEADER_SIZE])
+
+
+class BlocknetTestnetMixin(object):
+    NET = "testnet"
+    XPUB_VERBYTES = bytes.fromhex("3A8061A0")
+    XPRV_VERBYTES = bytes.fromhex("3A805837")
+    P2PKH_VERBYTE = bytes.fromhex("8B")
+    P2SH_VERBYTES = [bytes.fromhex("13")]
+    WIF_BYTE = bytes.fromhex("EF")
+    GENESIS_HASH = ('0fd62ae4f74c7ee0c11ef60fc5a2e69a'
+                    '5c02eaee2e77b21c3db70934b5a5c8b9')
+    RPC_PORT = 41419
+    #  HDR_V4_HEIGHT = 1
+    #  HDR_V4_SIZE = 112
+    TX_COUNT = 204387
+    TX_COUNT_HEIGHT = 101910
+    TX_PER_BLOCK = 2
+    #  HDR_V4_START_OFFSET = HDR_V4_HEIGHT * BASIC_HEADER_SIZE
+
+
+class BlocknetTestnet(BlocknetTestnetMixin, Coin):
+    NAME = "BlocknetTestnet"
+    SHORTNAME = "TBLOCK"
+
+    @classmethod
+    def header_hash(cls, header):
+        version, = util.unpack_le_uint32_from(header)
+        if version >= 4:
+            return super().header_hash(header)
+        else:
+            import quark_hash
+            return quark_hash.getPoWHash(header)
