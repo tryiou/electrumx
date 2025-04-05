@@ -1518,15 +1518,15 @@ class ElectrumX(SessionBase):
         self.bump_cost(2.0)  # Moderate cost for block processing
         return await self.daemon_request('getblock', blockhash, verbosity)
 
-    async def getrawmempool(self, verbose=False, mempool_sequence=False):
-        '''Return the current mempool contents'''
-        verbose = assert_boolean(verbose)
-        mempool_sequence = assert_boolean(mempool_sequence)
-        self.bump_cost(1.5)  # Lower cost since mempool is memory-resident
-        params = []
-        if verbose or mempool_sequence:
-            params.extend([verbose, mempool_sequence])
-        return await self.daemon_request('getrawmempool', *params)
+    async def getrawmempool(self, verbose=False, mempool_sequence=False):                                                                                           
+        '''Return the current mempool contents'''                                                                                                                   
+        verbose = assert_boolean(verbose)                                                                                                                           
+        mempool_sequence = assert_boolean(mempool_sequence)                                                                                                         
+        self.bump_cost(1.5)  # Lower cost since mempool is memory-resident                                                                                          
+        params = []                                                                                                                                                 
+        if verbose or mempool_sequence:                                                                                                                             
+            params.extend([verbose, mempool_sequence])                                                                                                              
+        return await self.daemon_request('getrawmempool', params)  
 
     async def transaction_get(self, tx_hash, verbose=False):
         '''Return the serialized raw transaction given its hash
