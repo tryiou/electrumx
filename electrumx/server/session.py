@@ -1511,12 +1511,13 @@ class ElectrumX(SessionBase):
                 electrumx_result['errors'] = errors
             return electrumx_result
 
-    async def getblock(self, blockhash: str, verbosity: int = 1):
-        '''Return the block data or header given its hash'''
-        blockhash = assert_tx_hash(blockhash)
-        verbosity = non_negative_integer(verbosity)
-        self.bump_cost(2.0)  # Moderate cost for block processing
-        return await self.daemon_request('getblock', blockhash, verbosity)
+    async def getblock(self, blockhash: str, verbosity = 1):                                                                                                        
+        '''Return the block data or header given its hash'''                                                                                                        
+        raw_hash = assert_tx_hash(blockhash)                                                                                                                        
+        verbosity = (verbosity if isinstance(verbosity, int)                                                                                                        
+                     else non_negative_integer(verbosity))                                                                                                          
+        self.bump_cost(2.0)  # Moderate cost for block processing                                                                                                   
+        return await self.daemon_request('getblock', hash_to_hex_str(raw_hash), verbosity) 
 
     async def getrawmempool(self, verbose=False, mempool_sequence=False):                                                                                           
         '''Return the current mempool contents'''                                                                                                                   
