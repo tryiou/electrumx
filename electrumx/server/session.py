@@ -1511,6 +1511,23 @@ class ElectrumX(SessionBase):
                 electrumx_result['errors'] = errors
             return electrumx_result
 
+    async def getblock(self, blockhash: str, verbosity: int = 1):
+        '''Return the block data or header given its hash'''
+        blockhash = assert_tx_hash(blockhash)
+        verbosity = non_negative_integer(verbosity)
+        self.bump_cost(2.0)  # Moderate cost for block processing
+        return await self.daemon_request('getblock', blockhash, verbosity)
+
+    async def getrawmempool(self, verbose=False, mempool_sequence=False):
+        '''Return the current mempool contents'''
+        verbose = assert_boolean(verbose)
+        mempool_sequence = assert_boolean(mempool_sequence)
+        self.bump_cost(1.5)  # Lower cost since mempool is memory-resident
+        params = []
+        if verbose or mempool_sequence:
+            params.extend([verbose, mempool_sequence])
+        return await self.daemon_request('getrawmempool', *params)
+
     async def transaction_get(self, tx_hash, verbose=False):
         '''Return the serialized raw transaction given its hash
 
@@ -1594,6 +1611,8 @@ class ElectrumX(SessionBase):
             'server.peers.subscribe': self.peers_subscribe,
             'server.ping': self.ping,
             'server.version': self.server_version,
+            'blockchain.getblock': self.getblock,
+            'blockchain.getrawmempool': self.getrawmempool,
         }
 
         if ptuple >= (1, 4, 2):
